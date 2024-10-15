@@ -1,0 +1,162 @@
+/* General layout */
+.cl-dashboard-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f4f7fa;
+}
+
+/* Header styling */
+.cl-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.cl-brand-logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cl-brand-icon {
+  font-size: 1.8rem;
+  color: #4badef;
+}
+
+.cl-brand-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: 10px;
+  color: #4badef;
+}
+
+.cl-header-icons {
+  display: flex;
+  align-items: center;
+}
+
+.cl-header-icon {
+  margin: 0 15px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #5f6368;
+}
+
+/* Dashboard and Sidebar */
+.cl-dashboard-container {
+  display: flex;
+  margin-top: 20px;
+}
+
+.cl-sidebar {
+  width: 250px;
+  background-color: #ffffff;
+  padding: 20px;
+  height: 100vh;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  left: 0;
+}
+
+.cl-sidebar a {
+  display: block;
+  padding: 15px 20px;
+  font-size: 18px;
+  color: #14213d;
+  text-decoration: none;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.cl-sidebar a:hover,
+.cl-sidebar a.cl-active {
+  background-color: #5863f8;
+  color: white;
+  border-radius: 10px;
+}
+
+.cl-main-content {
+  margin-left: 270px;
+  padding: 20px;
+  width: calc(100% - 270px);
+  display: flex;
+  justify-content: center;
+}
+
+/* Leaderboard Container */
+.cl-leaderboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 900px;
+  padding-top: 30px;
+}
+
+/* Leaderboard Section */
+.cl-leaderboard-section {
+  background-color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.cl-leaderboard-section h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* Leaderboard Table */
+.cl-leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.cl-leaderboard-table th,
+.cl-leaderboard-table td {
+  padding: 12px;
+  text-align: center; /* Centers the content */
+  border-bottom: 1px solid #ddd;
+}
+
+.cl-leaderboard-table th {
+  background-color: #5863f8;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.cl-leaderboard-table td {
+  font-size: 1rem;
+  color: #333;
+}
+
+.cl-leaderboard-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Medal colors */
+.cl-gold-medal {
+  color: gold;
+}
+
+.cl-silver-medal {
+  color: silver;
+}
+
+.cl-bronze-medal {
+  color: #cd7f32;
+}

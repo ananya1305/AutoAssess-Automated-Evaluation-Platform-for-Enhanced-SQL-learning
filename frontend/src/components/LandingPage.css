@@ -1,0 +1,174 @@
+/* Import Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/* Full Page Structure (Scoped to .landing-page-root) */
+.landing-page-root {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  height: 100vh; /* Full viewport height for this page */
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Header */
+.landing-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: rgba(0, 0, 0, 0.6); /* Translucent header */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.landing-page-brand {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.landing-page-login-link {
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.2); /* Translucent background */
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.landing-page-login-link:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  color: white;
+}
+
+/* Hero Section */
+.landing-page-hero-section {
+  position: relative;
+  min-height: 100vh; /* Occupies full screen */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+.landing-page-background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+  filter: brightness(0.5); /* Slight darkening for better text readability */
+}
+
+.landing-page-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.landing-page-hero-title {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow for better readability */
+}
+
+.landing-page-hero-description {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  color: #f0f0f0; /* Softer color */
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.landing-page-cta-btn {
+  background-color: rgba(255, 255, 255, 0.3); /* Translucent button */
+  color: white;
+  padding: 15px 35px;
+  font-size: 1.2rem;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.landing-page-cta-btn:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Features Section */
+.landing-page-features-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 50px 20px;
+  background-color: #fafafa;
+  min-height: 100vh; /* Ensures this section takes full height */
+  z-index: 1;
+}
+
+.landing-page-feature {
+  text-align: center;
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.landing-page-feature:hover {
+  transform: translateY(-10px);
+}
+
+.landing-page-feature h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.landing-page-feature p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.landing-page-feature-icon {
+  font-size: 3.5rem;
+  color: #4b56ef;
+  margin-bottom: 15px;
+  transition: color 0.3s ease;
+}
+
+.landing-page-feature:hover .landing-page-feature-icon {
+  color: #002d62;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  .landing-page-hero-title {
+    font-size: 3rem;
+  }
+
+  .landing-page-hero-description {
+    font-size: 1.2rem;
+  }
+
+  .landing-page-features-section {
+    flex-direction: column;
+    padding: 30px;
+  }
+
+  .landing-page-feature {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+}

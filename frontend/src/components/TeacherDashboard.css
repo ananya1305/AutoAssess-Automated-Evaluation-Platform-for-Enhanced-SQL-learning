@@ -1,0 +1,402 @@
+/* Header Section */
+/* Body */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%; 
+  overflow: auto; /* Ensure body doesn't scroll */
+}
+
+/* Sidebar Section */
+
+
+/* Main Content Layout */
+.teacher-dashboard-container {
+  display: flex;
+  height: 100vh; /* Ensure the container fills the viewport height */
+  overflow-y: auto; /* Scroll only this container */
+}
+
+.teacher-main-content {
+  flex: 1;
+  margin-left: 230px; /* Adjust width to the sidebar */
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 20px;
+  overflow-y: auto; /* Enable scrolling for the content */
+}
+
+.teacher-welcome-section {
+  grid-column: 1 / -1;
+  background: linear-gradient(90deg, #5863f8 0%, #b3b9ff 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* Right section (calendar, profile, etc.) */
+.teacher-right-section {
+  overflow-y: auto; /* Allow scrolling in this section */
+}
+
+/* React Calendar Customization */
+.react-calendar {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 8px rgba(0, 0, 0, 0.05); /* Soft shadow */
+  padding: 10px;
+  font-family: 'Arial', sans-serif;
+  max-width: 100%; /* Make sure the calendar fits within the container */
+}
+
+/* Remove unnecessary overflow properties from other elements */
+
+.teacher-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  
+}
+
+.teacher-brand-logo {
+  display: flex;
+  align-items: center;
+}
+
+.teacher-brand-icon {
+  font-size: 1.8rem;
+  color: #4badef;
+}
+
+.teacher-brand-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: 10px;
+  color: #4badef;
+}
+
+.teacher-search-bar input {
+  border: none;
+  padding: 8px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+.teacher-header-icons {
+  display: flex;
+  align-items: center;
+}
+
+.teacher-header-icon {
+  margin: 0 15px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #5f6368;
+}
+
+.teacher-user-info {
+  display: flex;
+  align-items: center;
+}
+
+.teacher-user-info span {
+  margin-right: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.teacher-user-avatar {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+/* Sidebar Section */
+.teacher-sidebar {
+  width: 230px;
+  background-color: #ffffff;
+  padding: 20px;
+  height: 100vh; /* Sidebar height full */
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  left: 0;
+  top: 0; /* Sidebar starting from the top */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.teacher-sidebar a {
+  display: block;
+  padding: 15px 20px;
+  font-size: 18px;
+  color: #14213d;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.teacher-sidebar a:hover {
+  background-color: #e4e9f2;
+  border-radius: 10px;
+}
+.teacher-branding {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px; /* Space after logo */
+}
+.teacher-brand-icon {
+  font-size: 2.5rem; /* Bigger logo size */
+  color: #4badef;
+}
+
+.teacher-brand-name {
+  font-size: 1.8rem; /* Bigger font size for brand */
+  font-weight: bold;
+  margin-left: 10px;
+  color: #4badef;
+}
+
+/* Main Content Layout */
+.teacher-dashboard-container {
+  display: flex;
+  overflow: auto;
+  height: 100vh;
+}
+
+.teacher-main-content {
+  flex: 1;
+  margin-left: 270px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 20px;
+  width: calc(100% - 270px);
+  overflow-y: scroll;
+}
+
+.teacher-welcome-section {
+  grid-column: 1 / -1;
+  background: linear-gradient(90deg, #5863f8 0%, #b3b9ff 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.teacher-welcome-section h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.teacher-progress-highlight {
+  font-weight: bold;
+  color: yellow;
+}
+
+/* Stats Section */
+.teacher-working-hours-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.teacher-working-hours,
+.teacher-class-progress,
+.teacher-student-tests,
+.teacher-leaderboard-section,
+.teacher-user-profile,
+.teacher-calendar-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 8px rgba(0, 0, 0, 0.05);
+  
+}
+
+.teacher-class-performance {
+  width: 48%;
+}
+
+.teacher-chart-placeholder {
+  background-color: white;
+  width: 350px;
+}
+
+.teacher-right-section .teacher-user-profile {
+  text-align: center;
+  color: #14213d;
+  margin-bottom: 20px;
+}
+
+.teacher-user-profile button {
+  background-color: #5863f8;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.teacher-user-profile button + button {
+  margin-left: 10px;
+}
+
+/* Calendar Container */
+.teacher-calendar-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 15px;
+  text-align: center;
+}
+
+/* React Calendar Styling */
+/* React Calendar Customization */
+
+/* React Calendar Customization */
+.react-calendar {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 8px rgba(0, 0, 0, 0.05); /* Soft shadow */
+  padding: 10px; /* Reduced padding */
+  font-family: 'Arial', sans-serif;
+  max-width: 100%; /* Make sure the calendar fits within the container */
+  
+}
+
+/* Styling the header */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 5px; /* Reduced padding */
+}
+
+.react-calendar__navigation button {
+  background: none;
+  border: none;
+  font-size: 1.2rem; /* Reduced font size */
+  color: #5863f8;
+  cursor: pointer;
+}
+
+.react-calendar__navigation button:hover {
+  color: #4b5df8;
+}
+
+/* Days of the week */
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-size: 0.8rem; /* Reduced font size */
+  color: #5f5f5f;
+}
+
+/* Day cells */
+.react-calendar__tile {
+  padding: 5px; /* Reduced padding to make the day cells smaller */
+  background: none;
+  border: none;
+  text-align: center;
+  border-radius: 50%; /* Circle-like shape for dates */
+  color: #4a4a4a;
+  font-size: 0.9rem; /* Slightly reduced font size for days */
+  transition: background-color 0.3s ease;
+}
+
+.react-calendar__tile:hover {
+  background-color: #edf2f7; /* Light hover effect */
+  cursor: pointer;
+}
+
+/* Selected day styling */
+.react-calendar__tile--active {
+  background-color: #5863f8;
+  color: white;
+  border-radius: 50%; /* Circle shape for the selected date */
+}
+
+.react-calendar__tile--active:hover {
+  background-color: #4b5df8;
+}
+
+/* Neighboring month days */
+.react-calendar__tile--now {
+  background-color: transparent; /* Remove highlight for today */
+  border: none;
+  color: #c4c4c4;
+}
+
+/* Remove borders between dates */
+.react-calendar__tile:enabled:focus {
+  outline: none;
+  border: none;
+}
+
+/* Leaderboard Section */
+.teacher-leaderboard-section {
+  flex: 1; /* Allow the leaderboard section to grow */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Ensure leaderboard scrolls if needed */
+}
+
+.teacher-leaderboard-list {
+  list-style: none;
+  padding: 0;
+}
+
+.teacher-leaderboard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+}
+
+.teacher-leaderboard-rank {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.teacher-leaderboard-name {
+  flex-grow: 1;
+}
+
+.teacher-leaderboard-marks {
+  font-weight: bold;
+  color: #555;
+}
+
+.teacher-leaderboard-icon {
+  font-size: 1.5rem;
+}
+.teacher-right-section {
+  overflow-y: auto; /* Allow scrolling in this section */
+}
+/* Class Progress Section */
+.teacher-class-progress {
+  margin-top: 10px;
+}
+
+.teacher-select {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 300px;
+}

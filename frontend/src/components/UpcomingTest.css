@@ -1,0 +1,121 @@
+/* UpcomingTest.css */
+
+.upcoming-dashboard-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.brand-icon {
+    font-size: 1.8rem;
+    color: #4badef;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left: 10px;
+    color: #4badef;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+}
+
+.header-icon {
+    margin: 0 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #5f6368;
+}
+
+.dashboard-container {
+    display: flex;
+    margin-top: 20px;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    height: 100vh;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    left: 0;
+}
+
+.sidebar a {
+    display: block;
+    padding: 15px 20px;
+    font-size: 18px;
+    color: #14213d;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+
+.sidebar a.active {
+    background-color: #5863f8;
+    color: white;
+    border-radius: 10px;
+}
+
+.main-content {
+    margin-left: 270px;
+    padding: 20px;
+}
+
+.upcoming-test-container {
+    max-width: 800px;
+    width: 450px;
+    height: 450px;
+    overflow: scroll;
+    margin: 50px auto;
+    margin-left: 250px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upcoming-test-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.upcoming-test-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.upcoming-test-container ul li {
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upcoming-test-container ul li:hover {
+    background-color: #f1f1f1;
+}
