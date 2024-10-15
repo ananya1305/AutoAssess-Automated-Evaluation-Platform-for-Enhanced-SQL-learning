@@ -5,6 +5,7 @@ const TestSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   totalQuestions: { type: Number, required: true },
   maxScore: { type: Number, required: true },
+  duration: { type: Number, required: true }, // Duration in minutes
   questions: [
     {
       questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },

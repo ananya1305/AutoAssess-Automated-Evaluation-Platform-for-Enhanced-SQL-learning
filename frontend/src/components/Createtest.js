@@ -11,6 +11,7 @@ const CreateTestPage = () => {
   const [addedCustomQuestions, setAddedCustomQuestions] = useState([]);
   const [generatedSchema, setGeneratedSchema] = useState(""); // Store the generated schema
   const [newTestName, setNewTestName] = useState("");
+  const [duration, setDuration] = useState(""); // New state for test duration
   const [loadingState, setLoadingState] = useState(false);
   const [errorState, setErrorState] = useState(null);
   const [selectedTestQuestions, setSelectedTestQuestions] = useState([]);
@@ -82,6 +83,11 @@ const CreateTestPage = () => {
       return;
     }
 
+    if (!duration || isNaN(duration) || duration <= 0) {
+      alert("Please enter a valid duration in minutes!");
+      return;
+    }
+  
     const allTestQuestions = [
       ...selectedTestQuestions.map((q, index) => ({ questionText: q, marks: 1, questionNumber: index + 1 })),
       ...addedCustomQuestions.map((q, index) => ({ questionText: q, marks: 1, questionNumber: selectedTestQuestions.length + index + 1 }))
@@ -90,8 +96,9 @@ const CreateTestPage = () => {
     const testPayload = {
       testName: newTestName,
       date: new Date(),
-      schema: generatedSchema, // Include the generated schema in the payload
-      questions: allTestQuestions
+      schema: generatedSchema,
+      questions: allTestQuestions,
+      duration: parseInt(duration) // Include duration in payload
     };
 
     console.log("Test Payload:", testPayload); // Log the payload
@@ -193,6 +200,15 @@ const CreateTestPage = () => {
               <button onClick={onTestFileUpload} className="ct-button">Upload Dataset</button>
 
               {loadingState && <p>Loading...</p>}
+
+              <label className="ct-label">Test Duration (minutes):</label>
+          <input
+            type="number"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            placeholder="Enter test duration"
+            className="ct-input-field"
+          />
 
               <h3>Custom Questions</h3>
               {addedCustomQuestions.map((customQuestion, index) => (

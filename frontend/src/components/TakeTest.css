@@ -7,6 +7,15 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* New styling for the timer component */
+.timer-display {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff5722; /* Change the color as needed */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 .schema-section, .question-section {
     margin-bottom: 20px;
 }

@@ -1,13 +1,13 @@
 const express = require('express');
 const Test = require('../models/test');
 const Question = require('../models/Question');
-const Student = require('../models/student'); // Fix the correct import here
+const Student = require('../models/student');
 
 const router = express.Router();
 
-// Create a new test and add questions along with the generated schema
+// Create a new test and add questions along with the generated schema and duration
 router.post('/createTest', async (req, res) => {
-  const { testName, date, questions, schema } = req.body;
+  const { testName, date, questions, schema, duration } = req.body;
   console.log("Received payload:", req.body); // Log the received payload
 
   try {
@@ -22,6 +22,11 @@ router.post('/createTest', async (req, res) => {
       maxScore += question.marks;
     });
 
+    // Validate duration
+    if (!duration || isNaN(duration) || duration <= 0) {
+      return res.status(400).json({ error: 'Please provide a valid duration in minutes.' });
+    }
+
     // Create a new test
     const newTest = new Test({
       testName,
@@ -29,6 +34,7 @@ router.post('/createTest', async (req, res) => {
       totalQuestions,
       maxScore,
       schema, // Save the schema along with the test
+      duration, // Save the duration along with the test
       questions: []
     });
 
@@ -48,8 +54,7 @@ router.post('/createTest', async (req, res) => {
         answer: question.answer // If using answer field
       });
       const savedQuestion = await newQuestion.save();
-      questionIds.push({ questionId: savedQuestion._id , questionText: savedQuestion.questionText });
-      
+      questionIds.push({ questionId: savedQuestion._id, questionText: savedQuestion.questionText });
     }
 
     // Update the test with question references
@@ -63,7 +68,7 @@ router.post('/createTest', async (req, res) => {
   }
 });
 
-// Fetch test by ID to display the schema and questions
+// Fetch test by ID to display the schema and questions, including duration
 router.get('/getTest/:id', async (req, res) => {
   try {
     const test = await Test.findById(req.params.id);
@@ -79,8 +84,6 @@ router.get('/getTest/:id', async (req, res) => {
   }
 });
 
-
-
 // Fetch upcoming tests
 router.get('/upcoming', async (req, res) => {
   try {
@@ -91,7 +94,7 @@ router.get('/upcoming', async (req, res) => {
   }
 });
 
-// Get test details by ID
+// Get test details by ID, including the duration
 router.get('/:id', async (req, res) => {
   try {
     const test = await Test.findById(req.params.id);
@@ -105,14 +108,11 @@ router.get('/:id', async (req, res) => {
 });
 
 // Submit test answers by student
-// Submit test answers by student
-// Submit test answers by student
 router.post('/:id/submit', async (req, res) => {
   const { answers, studentId } = req.body;  // Ensure studentId and answers are coming from the request body
   const testId = req.params.id;
 
   try {
-    // Your test submission logic here
     const test = await Test.findById(testId);
     if (!test) {
       return res.status(404).json({ error: 'Test not found' });
@@ -135,6 +135,7 @@ router.post('/:id/submit', async (req, res) => {
       testId: test._id,
       testName: test.testName,
       submittedAnswers,
+      duration: test.duration // Optionally, save the duration in the student's performance record
     });
 
     await student.save();
