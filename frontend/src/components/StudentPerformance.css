@@ -1,0 +1,42 @@
+.student-performance-container {
+    padding: 20px;
+}
+
+.student-performance-container h2 {
+    margin-bottom: 20px;
+}
+
+.student-performance-container label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.student-performance-container select {
+    padding: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 300px;
+    font-size: 16px;
+}
+
+.student-performance-container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.student-performance-container ul li {
+    padding: 10px;
+    background-color: #f4f4f9;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.student-performance-container ul li:hover {
+    background-color: #e0e0e5;
+}
+
+.student-performance-chart {
+    margin-top: 20px;
+}

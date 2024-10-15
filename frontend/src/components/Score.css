@@ -1,0 +1,84 @@
+/* General layout and styling for Score Page */
+.score-page {
+  padding: 2rem;
+  background-color: #f5f7fa;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.score-header {
+  font-size: 2.5rem;
+  color: #4A90E2;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Error and Message Styling */
+.error {
+  color: #ff4d4f;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.no-tests-message {
+  font-size: 1.2rem;
+  text-align: center;
+  color: #999;
+}
+
+/* Graded Test List */
+.graded-test-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.graded-test-item {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.5rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.graded-test-item:hover {
+  transform: translateY(-4px);
+}
+
+/* Test Item Content */
+.test-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.test-name {
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: bold;
+}
+
+.test-score {
+  font-size: 1.2rem;
+  color: #4CAF50;
+}
+
+/* Button Styling */
+.view-result-btn {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-result-btn:hover {
+  background-color: #357ABD;
+}

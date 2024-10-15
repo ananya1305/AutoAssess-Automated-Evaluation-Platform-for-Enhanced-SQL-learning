@@ -1,0 +1,91 @@
+/* General styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7fa;
+  color: #333;
+}
+
+/* Container for the entire result page */
+.result-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Header styling */
+.result-header {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #2d9cdb;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Question list */
+.question-list {
+  margin-top: 20px;
+}
+
+/* Each question card styling */
+.question-card {
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border-left: 5px solid #2d9cdb;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Question text */
+.question-text {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* Student's answer */
+.student-answer {
+  font-size: 16px;
+  margin-bottom: 10px;
+  background-color: #eef6ff;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Grading styling */
+.grade {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.correct {
+  color: #4CAF50;
+}
+
+.incorrect {
+  color: #FF5252;
+}
+
+/* Total score section */
+.total-score {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.total-score h2 {
+  font-size: 24px;
+  color: #4CAF50;
+}
+
+/* Loading message and error message styling */
+.loading-message, .error-message {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.error-message {
+  color: #FF5252;
+}

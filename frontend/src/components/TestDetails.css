@@ -1,0 +1,158 @@
+/* Main layout for TestDetails page */
+.test-details-dashboard-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header Section */
+.test-details-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.test-details-brand-logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.test-details-brand-icon {
+    font-size: 1.8rem;
+    color: #4badef;
+}
+
+.test-details-brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left: 10px;
+    color: #4badef;
+}
+
+.test-details-header-icons {
+    display: flex;
+    align-items: center;
+}
+
+.test-details-header-icon {
+    margin: 0 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #5f6368;
+}
+
+/* Sidebar */
+.test-details-sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    height: 100vh;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    left: 0;
+}
+
+.test-details-sidebar a {
+    display: block;
+    padding: 15px 20px;
+    font-size: 18px;
+    color: #14213d;
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.test-details-sidebar a.active {
+    background-color: #5863f8;
+    color: white;
+    border-radius: 10px;
+}
+
+.test-details-sidebar a:hover {
+    background-color: #e4e9f2;
+    border-radius: 10px;
+}
+
+/* Main Content */
+.test-details-main-content {
+    margin-left: 270px;
+    padding: 20px;
+}
+
+.test-details-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 40px;
+    margin-left: 400px;
+    width: 300px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.test-details-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #6c20c3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #af66e0;
+}
+
+p {
+    font-size: 16px;
+    color: #666;
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .test-details-sidebar {
+        width: 180px;
+    }
+
+    .test-details-main-content {
+        margin-left: 180px;
+    }
+
+    .test-details-brand-name {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .test-details-sidebar {
+        display: none;
+    }
+
+    .test-details-main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .test-details-header-container {
+        padding: 10px 20px;
+    }
+
+    .test-details-brand-name {
+        font-size: 18px;
+    }
+}

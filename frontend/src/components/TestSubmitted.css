@@ -1,0 +1,27 @@
+.test-submitted-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .heading {
+    color: #b62fdc;
+    margin-bottom: 20px;
+  }
+  
+  .go-back-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .go-back-button:hover {
+    background-color: #45a049;
+  }
+  
