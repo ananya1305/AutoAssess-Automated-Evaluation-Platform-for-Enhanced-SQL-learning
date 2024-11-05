@@ -23,10 +23,6 @@ const TestDetails = () => {
         fetchTestDetails();
     }, [testId]);
 
-    const handleTestClick = (testId) => {
-        navigate(`/test-details/${testId}`);
-    };
-
     const handleLogout = () => {
         localStorage.removeItem('userToken');
         navigate('/login');
@@ -75,6 +71,9 @@ const TestDetails = () => {
                         {test ? (
                             <>
                                 <h2>{test.testName}</h2>
+                                <p>Date: {new Date(test.scheduledDate).toDateString()}</p>
+                                <p>Max Score: {test.maxScore}</p>
+                                <p>Duration: {test.duration} minutes</p>
                                 <button onClick={handleStartTest}>Start Test</button>
                             </>
                         ) : (

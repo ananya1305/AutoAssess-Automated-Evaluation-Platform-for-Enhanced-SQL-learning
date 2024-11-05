@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Create a new test and add questions along with the generated schema
 router.post('/createTest', async (req, res) => {
-  const { testName, date, questions, schema } = req.body;
+  const { testName, date, scheduledDate, questions, schema, keyInfo, duration} = req.body; // Destructure keyInfo from req.body
   console.log("Received payload:", req.body); // Log the received payload
 
   try {
@@ -21,15 +21,20 @@ router.post('/createTest', async (req, res) => {
       }
       maxScore += question.marks;
     });
+   
 
-    // Create a new test
+
+    // Create a new test, including keyInfo if needed
     const newTest = new Test({
       testName,
       date,
       totalQuestions,
+      scheduledDate, 
       maxScore,
       schema, // Save the schema along with the test
-      questions: []
+      keyInfo, // Include keyInfo in the test object
+      duration,
+      questions: [],
     });
 
     // Save the test to get its ID
@@ -45,11 +50,10 @@ router.post('/createTest', async (req, res) => {
         questionText: question.questionText,
         marks: question.marks,
         questionNumber: question.questionNumber, // Ensure questionNumber is being passed
-        answer: question.answer // If using answer field
+        answer: question.answer, // If using an answer field
       });
       const savedQuestion = await newQuestion.save();
-      questionIds.push({ questionId: savedQuestion._id , questionText: savedQuestion.questionText });
-      
+      questionIds.push({ questionId: savedQuestion._id, questionText: savedQuestion.questionText });
     }
 
     // Update the test with question references
@@ -62,6 +66,7 @@ router.post('/createTest', async (req, res) => {
     res.status(500).json({ error: 'Server error', details: err.message });
   }
 });
+
 
 // Fetch test by ID to display the schema and questions
 router.get('/getTest/:id', async (req, res) => {
@@ -84,12 +89,37 @@ router.get('/getTest/:id', async (req, res) => {
 // Fetch upcoming tests
 router.get('/upcoming', async (req, res) => {
   try {
-    const upcomingTests = await Test.find(); // Modify query as per your needs
-    res.json(upcomingTests);
+    const upcomingTests = await Test.find();
+
+    // Map over tests and filter out those without a valid scheduledDate
+    const formattedTests = upcomingTests.map((test) => {
+      if (!test.scheduledDate) {
+        return null; // Return null for tests without a scheduledDate
+      }
+
+      let scheduledDate;
+      try {
+        scheduledDate = new Date(test.scheduledDate).toISOString(); // Attempt to convert to ISO
+      } catch (error) {
+        console.error('Invalid date value:', test.scheduledDate); // Log the invalid date
+        return null; // Return null if the date is invalid
+      }
+
+      return {
+        testId: test._id,
+        testName: test.testName,
+        scheduledDate, // Use the validated date
+        maxScore: test.maxScore,
+      };
+    }).filter((test) => test !== null); // Filter out null values
+
+    res.json(formattedTests);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error fetching upcoming tests:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 });
+
 
 // Get test details by ID
 router.get('/:id', async (req, res) => {
@@ -135,6 +165,7 @@ router.post('/:id/submit', async (req, res) => {
       testId: test._id,
       testName: test.testName,
       submittedAnswers,
+      duration: test.duration
     });
 
     await student.save();

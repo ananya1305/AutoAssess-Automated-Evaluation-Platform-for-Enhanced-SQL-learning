@@ -34,39 +34,150 @@ def extract_table_structure(df, table_name="UploadedTable"):
         elif col_type == 'float64':
             col_type = 'DECIMAL(10,2)'
         else:
-            col_type = 'VARCHAR'
+            col_type = 'VARCHAR(255)'
         schema += f"    {col} {col_type},\n"
     schema = schema.rstrip(",\n") + "\n);"
     return schema
 
-# Generate SQL questions based on schema
-def generate_sql_questions_with_llama(schema):
+# Function to extract schemas from multiple files
+def extract_multiple_table_structures(files):
+    tables = {}
+    for file in files:
+        try:
+            if file.filename.endswith('.csv'):
+                df = pd.read_csv(file)
+            elif file.filename.endswith('.xlsx'):
+                df = pd.read_excel(file)
+            else:
+                continue
+
+            table_name = file.filename.rsplit('.', 1)[0]
+            schema = extract_table_structure(df, table_name=table_name)
+            tables[table_name] = schema
+        except Exception as e:
+            print(f"Error reading file {file.filename}: {e}")
+    return tables
+
+# Function to identify keys using the Ollama model
+def identify_keys_with_llama(schema):
     prompt = f"""
-    Given the following SQL table schema:
+    You are a database expert. Based on the following SQL table schema:
 
     {schema}
 
-    Generate a list of SQL questions based on Bloom's Taxonomy:
-    - 5 easy questions (Remembering/Understanding)
-    - 5 medium questions (Applying/Analyzing)
-    - 5 hard questions (Evaluating/Creating)
-    
-    Only generate questions. Do not provide answers.
-    """
-    response = llm.invoke(prompt)
-    return response
+    Identify the following keys:
+    - Candidate Key
+    - Primary Key
+    - Foreign Key
+    - Composite Key
 
-# API to receive file, generate schema, and create questions
+    For each key type, list only the keys found or specify "None found" if not applicable. Do not add any other information or text.
+    Format the output as:
+    Candidate Key: [list of keys or "None found"]
+    Primary Key: [list of keys or "None found"]
+    Foreign Key: [list of keys or "None found"]
+    Composite Key: [list of keys or "None found"]
+    """
+    try:
+        response = llm.invoke(prompt)
+        # Parse the response into a dictionary
+        keys_info = {
+            "CandidateKey": "None found",
+            "PrimaryKey": "None found",
+            "ForeignKey": "None found",
+            "CompositeKey": "None found"
+        }
+
+        # Extract key information from the response
+        for line in response.split("\n"):
+            if line.startswith("Candidate Key:"):
+                keys_info["CandidateKey"] = line.replace("Candidate Key:", "").strip()
+            elif line.startswith("Primary Key:"):
+                keys_info["PrimaryKey"] = line.replace("Primary Key:", "").strip()
+            elif line.startswith("Foreign Key:"):
+                keys_info["ForeignKey"] = line.replace("Foreign Key:", "").strip()
+            elif line.startswith("Composite Key:"):
+                keys_info["CompositeKey"] = line.replace("Composite Key:", "").strip()
+        
+        return keys_info
+
+    except Exception as e:
+        print(f"Error invoking LLM for key identification: {e}")
+        return {
+            "CandidateKey": "Error: Unable to process key identification",
+            "PrimaryKey": "Error: Unable to process key identification",
+            "ForeignKey": "Error: Unable to process key identification",
+            "CompositeKey": "Error: Unable to process key identification"
+        }
+# Function to generate SQL questions for a single table
+def generate_sql_questions_for_single_table(schema, num_easy, num_medium, num_hard):
+    prompt = f"""
+    You are an expert educator in SQL. Based on the following SQL table schema:
+
+    {schema}
+
+    Generate a set of SQL questions according to Bloom's Taxonomy:
+
+    - {num_easy} Easy questions (Remembering/Understanding)
+    - {num_medium} Medium questions (Applying/Analyzing)
+    - {num_hard} Hard questions (Evaluating/Creating)
+
+    Make sure each question is clear and specific. Do not provide answers, just questions.
+    """
+    try:
+        response = llm.invoke(prompt)
+        return response
+    except Exception as e:
+        print(f"Error generating SQL questions: {e}")
+        return "Error: Unable to generate questions"
+
+# Function to generate SQL questions for multiple tables
+def generate_sql_questions_for_multiple_tables(tables, keys_info, num_easy, num_medium, num_hard):
+    print("Tables received for question generation:", tables)
+    print("Key information received for question generation:", keys_info)
+
+    # Construct a clearer and more structured prompt
+    prompt = f"""
+    You are an expert educator in SQL. Based on the following SQL table schemas:
+
+    {tables}
+
+    Key Information:
+    - Candidate Key: {keys_info.get("Candidate Key", "None found")}
+    - Primary Key: {keys_info.get("Primary Key", "None found")}
+    - Foreign Key: {keys_info.get("Foreign Key", "None found")}
+    - Composite Key: {keys_info.get("Composite Key", "None found")}
+
+    Generate a set of SQL questions according to Bloom's Taxonomy:
+    - {num_easy} Easy questions (Remembering/Understanding)
+    - {num_medium} Medium questions (Applying/Analyzing)
+    - {num_hard} Hard questions (Evaluating/Creating)
+
+    Each question should be clear, specific, and related to the schemas provided. Do not provide answers, only questions.
+    """
+    try:
+        print("Prompt sent to Ollama model:", prompt)  # Debugging line
+        response = llm.invoke(prompt)
+        print("Response from Ollama model:", response)  # Debugging line
+        return response
+    except Exception as e:
+        print(f"Error generating SQL questions: {e}")
+        return "Error: Unable to generate questions"
+
+
+# API to handle file upload for single table
 @app.route('/upload', methods=['POST'])
 def upload_file():
     try:
-        # Check if file is uploaded
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file uploaded'}), 400
+        if 'file' not in request.files or 'num_easy' not in request.form or 'num_medium' not in request.form or 'num_hard' not in request.form:
+            return jsonify({'error': 'Missing required parameters'}), 400
 
         file = request.files['file']
+        num_easy = int(request.form['num_easy'])
+        num_medium = int(request.form['num_medium'])
+        num_hard = int(request.form['num_hard'])
 
-        # Read the file into a pandas DataFrame 
+        # Read the file into a pandas DataFrame
         if file.filename.endswith('.csv'):
             df = pd.read_csv(file)
         elif file.filename.endswith('.xlsx'):
@@ -76,7 +187,7 @@ def upload_file():
 
         # Extract table structure and generate SQL questions
         schema = extract_table_structure(df, table_name=file.filename.rsplit('.', 1)[0])
-        questions = generate_sql_questions_with_llama(schema)
+        questions = generate_sql_questions_for_single_table(schema, num_easy, num_medium, num_hard)
 
         return jsonify({'schema': schema, 'questions': questions}), 200
 
@@ -84,19 +195,92 @@ def upload_file():
         print(f"Error during file upload and processing: {e}")
         return jsonify({'error': str(e)}), 500
 
+# API to handle file upload for multiple tables
+@app.route('/upload-multiple', methods=['POST'])
+def upload_multiple_files():
+    try:
+        if 'files' not in request.files:
+            return jsonify({'error': 'Missing files'}), 400
+
+        files = request.files.getlist('files')
+        num_easy = int(request.form.get('num_easy', 0))
+        num_medium = int(request.form.get('num_medium', 0))
+        num_hard = int(request.form.get('num_hard', 0))
+
+        if not files:
+            return jsonify({'error': 'No files provided'}), 400
+
+        # Debug: Log the file names and count
+        print(f"Received {len(files)} files: {[file.filename for file in files]}")
+
+        # Extract schemas for all tables
+        schema_dict = extract_multiple_table_structures(files)
+        if not schema_dict:
+            return jsonify({'error': 'Failed to extract schema from any file'}), 400
+
+        # Debug: Log the extracted schemas
+        print(f"Extracted schemas: {schema_dict}")
+
+        # Combine all schemas for key identification
+        combined_schema = "\n\n".join(schema_dict.values())
+        keys_info = identify_keys_with_llama(combined_schema)
+
+        # Debug: Log the key information
+        print(f"Identified keys: {keys_info}")
+
+        return jsonify({'tables': schema_dict, 'key_info': keys_info}), 200
+
+    except Exception as e:
+        # Log the detailed error for debugging
+        print(f"Error during file upload and processing: {e}")
+        return jsonify({'error': f"Internal Server Error: {str(e)}"}), 500
+@app.route('/generate-questions', methods=['POST'])
+def generate_questions():
+    try:
+        # Extract the request data
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Missing request data'}), 400
+
+        tables = data.get('tables')
+        key_info = data.get('key_info')
+        num_easy = int(data.get('num_easy', 0))
+        num_medium = int(data.get('num_medium', 0))
+        num_hard = int(data.get('num_hard', 0))
+
+        if not tables or not key_info:
+            return jsonify({'error': 'Missing tables or key information'}), 400
+
+        # Generate SQL questions using the provided schemas and keys
+        questions = generate_sql_questions_for_multiple_tables(tables, key_info, num_easy, num_medium, num_hard)
+        print("Generated Questions:", questions)
+
+
+        return jsonify({'questions': questions}), 200
+
+    except Exception as e:
+        print(f"Error generating questions: {e}")
+        return jsonify({'error': str(e)}), 500
+
 # Function to generate SQL answers for a question
 def generate_sql_answers_with_llama(schema, question):
     prompt = f"""
-    Given the following SQL table schema:
+    You are a database expert. Based on the following SQL table schema:
 
     {schema}
 
-    Provide the correct SQL answer for the following question:
+    Answer the SQL question below with a well-formed and optimized SQL query. Make sure the query adheres to best practices, including:
+    - Correct use of table and column names.
+    - Proper use of SQL functions and operators.
+    - Ensuring efficiency and avoiding common pitfalls such as unnecessary joins or subqueries.
 
-    {question}
+    Question: {question}
+
+    Provide only the SQL query and nothing else, no explanations or additional text.
     """
     response = llm.invoke(prompt)
     return response.strip()
+
 
 # API to generate answers for a specific test based on its schema and questions from the database
 @app.route('/generate-answers/<test_id>', methods=['POST'])

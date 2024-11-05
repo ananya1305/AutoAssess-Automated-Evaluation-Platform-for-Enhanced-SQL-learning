@@ -41,18 +41,31 @@ const TeacherDashboard = () => {
 
     const fetchTestDates = async () => {
       try {
-        const response = await axios.get('http://localhost:3002/api/test/allTests'); // Fetch all tests (past & future)
-        const tests = response.data.map((test) => ({
-          date: new Date(test.date), // Convert the ISO string to a JS Date object
-          testName: test.testName,
-        }));
-        console.log('Fetched Tests:', tests); // Log the fetched test dates to verify
-        setTestDates(tests); // Store test dates
+        const response = await axios.get('http://localhost:3002/api/test/upcoming');
+        const tests = response.data.map((test) => {
+          // Extract date components and adjust to prevent time zone shift
+          const scheduledDate = new Date(test.scheduledDate);
+          const correctedDate = new Date(
+            scheduledDate.getUTCFullYear(),
+            scheduledDate.getUTCMonth(),
+            scheduledDate.getUTCDate()
+          );
+    
+          return {
+            testId: test.testId,
+            testName: test.testName,
+            scheduledDate: correctedDate, // Use the corrected date
+            maxScore: test.maxScore,
+          };
+        });
+        setTestDates(tests);
       } catch (error) {
         console.error('Error fetching test dates:', error);
       }
     };
+    
 
+  
     const fetchLeaderboardData = async () => {
       try {
         const response = await axios.get('http://localhost:3002/api/leaderboard');
@@ -69,15 +82,19 @@ const TeacherDashboard = () => {
 
   // Normalize date to YYYY-MM-DD (ignoring time)
   const normalizeDate = (date) => {
-    return date.toISOString().split('T')[0]; // Get the YYYY-MM-DD part
+    // Ensure we are dealing with a valid Date object
+    return date instanceof Date && !isNaN(date) ? date.toISOString().split('T')[0] : null;
   };
+
 
   // Handle date change in the calendar
   const onDateChange = (newDate) => {
     setDate(newDate);
     const normalizedDate = normalizeDate(newDate);
     console.log('Selected Date:', normalizedDate); // Log selected date
-    const selected = testDates.find((test) => normalizeDate(test.date) === normalizedDate);
+    const selected = testDates.find(
+      (test) => normalizeDate(test.scheduledDate) === normalizedDate
+    );
     console.log('Selected Test:', selected); // Log the selected test (or null if no match)
     setSelectedTest(selected); // Set selected test if a match is found
   };
@@ -86,7 +103,16 @@ const TeacherDashboard = () => {
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
       const normalizedDate = normalizeDate(date);
-      const test = testDates.find((test) => normalizeDate(test.date) === normalizedDate);
+      const test = testDates.find(
+        (test) => test.scheduledDate && normalizeDate(test.scheduledDate) === normalizedDate
+      );
+      
+      // Debugging: Check the dates being compared
+      console.log("Calendar Date:", normalizedDate);
+      if (test) {
+        console.log("Matching Test Date:", normalizeDate(test.scheduledDate));
+      }
+  
       return test ? <div className="teacher-highlight-dot"></div> : null;
     }
   };
@@ -279,9 +305,9 @@ const TeacherDashboard = () => {
               />
               {selectedTest ? (
                 <div className="teacher-test-details">
-                  <h4>Test Scheduled:</h4>
-                  <p>{selectedTest.testName}</p>
-                  <p>Date: {new Date(selectedTest.date).toDateString()}</p>
+                  <h4>Test Scheduled: {selectedTest.testName}</h4>
+                  
+                  <h4>Marks: {selectedTest.maxScore}</h4> 
                 </div>
               ) : (
                 <div className="teacher-test-details">

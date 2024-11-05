@@ -69,8 +69,8 @@ const UpcomingTest = () => {
                         <h2>Upcoming Tests</h2>
                         <ul>
                             {tests.map((test) => (
-                                <li key={test._id} onClick={() => handleTestClick(test._id)}>
-                                    {test.testName}
+                                <li key={test.testId} onClick={() => handleTestClick(test.testId)}>
+                                    {test.testName} - {new Date(test.scheduledDate).toDateString()}
                                 </li>
                             ))}
                         </ul>

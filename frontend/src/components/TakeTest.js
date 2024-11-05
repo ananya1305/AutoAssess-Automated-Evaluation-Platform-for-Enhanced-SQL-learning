@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './TakeTest.css';
@@ -9,6 +9,8 @@ const TakeTest = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);  // Handle question navigation
     const [answers, setAnswers] = useState([]);  // Store student's answers
     const [student, setStudent] = useState(null);  // Store student data
+    const [timeRemaining, setTimeRemaining] = useState(null); // Timer state
+    const timerRef = useRef(null); // Reference to the timer
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);  // Loading state
 
@@ -42,8 +44,10 @@ const TakeTest = () => {
                 const response = await axios.get(`http://localhost:3002/api/test/${testId}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
                 });
-                setTest(response.data);
-                setAnswers(new Array(response.data.questions.length).fill(""));  // Initialize empty answers
+                const testData = response.data;
+                setTest(testData);
+                setAnswers(new Array(testData.questions.length).fill(""));  // Initialize empty answers
+                setTimeRemaining(testData.duration * 60); // Convert duration from minutes to seconds
             } catch (error) {
                 console.error('Error fetching test details:', error);
             }
@@ -51,6 +55,29 @@ const TakeTest = () => {
 
         fetchTestDetails();
     }, [testId]);
+
+    // Countdown timer logic
+    useEffect(() => {
+        if (timeRemaining === null) return;
+
+        if (timeRemaining <= 0) {
+            handleSubmitTest(); // Auto-submit the test when time runs out
+            return;
+        }
+
+        timerRef.current = setInterval(() => {
+            setTimeRemaining((prevTime) => prevTime - 1);
+        }, 1000);
+
+        // Cleanup interval on component unmount
+        return () => clearInterval(timerRef.current);
+    }, [timeRemaining]);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    };
 
     const handleNextQuestion = () => {
         if (currentQuestionIndex < test.questions.length - 1) {
@@ -82,9 +109,6 @@ const TakeTest = () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
             });
             
-            // Call grading function (this happens in the background, without blocking the UI)
-            handleGradeTest();
-
             // Redirect to 'Test Submitted' page immediately
             navigate(`/test-submitted`);
         } catch (error) {
@@ -95,18 +119,6 @@ const TakeTest = () => {
         }
     };
 
-    const handleGradeTest = async () => {
-        try {
-            // Perform grading in the background
-            await axios.post(`http://localhost:5000/grade-test/${testId}/${student._id}`, {}, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
-            });
-            console.log('Test graded successfully!');
-        } catch (error) {
-            console.error('Error grading test:', error);
-        }
-    };
-
     // Ensure test and questions are defined before accessing them
     if (!test || !test.questions || test.questions.length === 0) {
         return <p>Loading test...</p>;
@@ -114,10 +126,48 @@ const TakeTest = () => {
 
     return (
         <div className="take-test-container">
-            <div className="schema-section">
-                <h3>Schema</h3>
-                <pre>{test.schema}</pre>  {/* Display the schema */}
+            <div className="timer-display">
+                <h3>Time Remaining: {formatTime(timeRemaining)}</h3>
             </div>
+
+            {/* Display Schema Information */}
+            {/* Display Schema Information */}
+            <div className="schema-section">
+                <h3>Schema Information</h3>
+                {test.schema ? (
+                    // If the schema is a single string, render it as is
+                    typeof test.schema === "string" ? (
+                        <pre>{test.schema}</pre>
+                    ) : (
+                        // If the schema is an object, render each table's schema
+                        Object.entries(test.schema).map(([tableName, tableSchema]) => (
+                            <div key={tableName} className="table-schema">
+                                <h4>{tableName}</h4>
+                                <pre>{tableSchema}</pre>  {/* Render the schema correctly */}
+                            </div>
+                        ))
+                    )
+                ) : (
+                    <p>No schema information available</p>
+                )}
+            </div>
+
+
+            {/* Display Key Information */}
+            <div className="key-info-section">
+                <h3>Key Information</h3>
+                {test.keyInfo ? (
+                    <ul>
+                        <li><strong>Candidate Key:</strong> {test.keyInfo["Candidate Key"]}</li>
+                        <li><strong>Primary Key:</strong> {test.keyInfo["Primary Key"]}</li>
+                        <li><strong>Foreign Key:</strong> {test.keyInfo["Foreign Key"]}</li>
+                        <li><strong>Composite Key:</strong> {test.keyInfo["Composite Key"]}</li>
+                    </ul>
+                ) : (
+                    <p>No key information available</p>
+                )}
+            </div>
+
             <div className="question-section">
                 {test.questions[currentQuestionIndex] ? (
                     <>
