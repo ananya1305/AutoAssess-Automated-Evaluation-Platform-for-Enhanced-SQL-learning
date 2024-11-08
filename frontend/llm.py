@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
+import random
 from pymongo import MongoClient
 from langchain_community.llms import Ollama
 from bson.objectid import ObjectId  # Import ObjectId for querying by ObjectId
@@ -25,9 +26,8 @@ llm = Ollama(model="llama3", base_url="http://127.0.0.1:11434")
 
 # Extract table structure
 def extract_table_structure(df, table_name="UploadedTable"):
-    columns = df.columns
     schema = f"CREATE TABLE {table_name} (\n"
-    for col in columns:
+    for col in df.columns:
         col_type = df[col].dtype
         if col_type == 'int64':
             col_type = 'INT'
@@ -36,8 +36,7 @@ def extract_table_structure(df, table_name="UploadedTable"):
         else:
             col_type = 'VARCHAR(255)'
         schema += f"    {col} {col_type},\n"
-    schema = schema.rstrip(",\n") + "\n);"
-    return schema
+    return schema.rstrip(",\n") + "\n);"
 
 # Function to extract schemas from multiple files
 def extract_multiple_table_structures(files):
@@ -52,8 +51,7 @@ def extract_multiple_table_structures(files):
                 continue
 
             table_name = file.filename.rsplit('.', 1)[0]
-            schema = extract_table_structure(df, table_name=table_name)
-            tables[table_name] = schema
+            tables[table_name] = extract_table_structure(df, table_name=table_name)
         except Exception as e:
             print(f"Error reading file {file.filename}: {e}")
     return tables
@@ -66,49 +64,41 @@ def identify_keys_with_llama(schema):
     {schema}
 
     Identify the following keys:
-    - Candidate Key
     - Primary Key
     - Foreign Key
-    - Composite Key
 
     For each key type, list only the keys found or specify "None found" if not applicable. Do not add any other information or text.
     Format the output as:
-    Candidate Key: [list of keys or "None found"]
-    Primary Key: [list of keys or "None found"]
-    Foreign Key: [list of keys or "None found"]
-    Composite Key: [list of keys or "None found"]
+    Primary Key: [list of keys for each and every table in the schema or "None found"]
+    Foreign Key: [one foreign key  or "None found"]
+    Example:
+    ForeignKey: [player_id (players)-> player_id (transfers)]
     """
     try:
         response = llm.invoke(prompt)
         # Parse the response into a dictionary
         keys_info = {
-            "CandidateKey": "None found",
             "PrimaryKey": "None found",
-            "ForeignKey": "None found",
-            "CompositeKey": "None found"
+            "ForeignKey": "None found"
         }
 
         # Extract key information from the response
         for line in response.split("\n"):
-            if line.startswith("Candidate Key:"):
-                keys_info["CandidateKey"] = line.replace("Candidate Key:", "").strip()
-            elif line.startswith("Primary Key:"):
+            if line.startswith("Primary Key:"):
                 keys_info["PrimaryKey"] = line.replace("Primary Key:", "").strip()
             elif line.startswith("Foreign Key:"):
                 keys_info["ForeignKey"] = line.replace("Foreign Key:", "").strip()
-            elif line.startswith("Composite Key:"):
-                keys_info["CompositeKey"] = line.replace("Composite Key:", "").strip()
         
         return keys_info
 
     except Exception as e:
         print(f"Error invoking LLM for key identification: {e}")
         return {
-            "CandidateKey": "Error: Unable to process key identification",
             "PrimaryKey": "Error: Unable to process key identification",
-            "ForeignKey": "Error: Unable to process key identification",
-            "CompositeKey": "Error: Unable to process key identification"
+            "ForeignKey": "Error: Unable to process key identification"
         }
+
+
 # Function to generate SQL questions for a single table
 def generate_sql_questions_for_single_table(schema, num_easy, num_medium, num_hard):
     prompt = f"""
@@ -143,10 +133,8 @@ def generate_sql_questions_for_multiple_tables(tables, keys_info, num_easy, num_
     {tables}
 
     Key Information:
-    - Candidate Key: {keys_info.get("Candidate Key", "None found")}
     - Primary Key: {keys_info.get("Primary Key", "None found")}
     - Foreign Key: {keys_info.get("Foreign Key", "None found")}
-    - Composite Key: {keys_info.get("Composite Key", "None found")}
 
     Generate a set of SQL questions according to Bloom's Taxonomy:
     - {num_easy} Easy questions (Remembering/Understanding)
@@ -163,6 +151,7 @@ def generate_sql_questions_for_multiple_tables(tables, keys_info, num_easy, num_
     except Exception as e:
         print(f"Error generating SQL questions: {e}")
         return "Error: Unable to generate questions"
+
 
 
 # API to handle file upload for single table
@@ -234,6 +223,7 @@ def upload_multiple_files():
         # Log the detailed error for debugging
         print(f"Error during file upload and processing: {e}")
         return jsonify({'error': f"Internal Server Error: {str(e)}"}), 500
+
 @app.route('/generate-questions', methods=['POST'])
 def generate_questions():
     try:
@@ -318,44 +308,70 @@ def generate_answers(test_id):
 # Function to compare answers using the Ollama model
 # Function to compare answers using the Ollama model
 # Function to compare answers using the Ollama model based on question and schema
+# Function to compare answers using the Ollama model based on question and schema
 def compare_answers(student_answer, question, schema):
     prompt = f"""
-    You are an SQL expert.
+    You are an SQL expert grading a student’s answer based on the provided SQL table schema and question.
 
-    Given the following SQL table schema:
-
+    Given Schema:
     {schema}
 
-    Question: {question}
+    Question:
+    {question}
 
-    Student Answer: {student_answer}
+    Student Answer:
+    {student_answer}
 
-    Evaluate the student's answer based on:
-    - Logical correctness according to the schema
-    - Syntactical correctness of the SQL query
+    Please evaluate the student’s answer with the following guidelines:
+    - **Logical correctness:** Does the answer logically match the requirements of the question?
+    - **Syntactical correctness:** Is the SQL syntax correct according to standard SQL?
+    - **Output correctness:** If this SQL query were executed, would it produce the expected output as described by the question?
 
-    Provide one of the following responses:
-    - 'Correct' if the student answer is fully correct.
-    - 'Incorrect' if the student answer is wrong.
+    Based on these criteria, respond with:
+    - **Final Verdict:** Clearly label as either "Correct" if all aspects (logical, syntactical, and output correctness) are met, or "Incorrect" otherwise.
+    - **Feedback (only if Incorrect)**: Provide feedback in the following format:
+      - **Issue**: Describe what went wrong in the student’s answer.
+      - **Correct Approach**: Explain the correct approach to solving this question.
+      - **Tip**: Offer a practical suggestion or resource the student can review to improve.
+      - **Areas for Improvement**: Suggest specific areas the student should focus on to strengthen their SQL skills.
+      - **Next Steps**: Provide a final recommendation for what the student can practice or review next.
+
+    Output Format:
+    - If the answer is correct, provide only the word "Correct" on one line.
+    - If the answer is incorrect, provide "Incorrect" on one line, followed by concise feedback on the next line explaining the specific issues with the student’s answer.
     """
     
-    # Invoke Ollama model with the prompt
+    # Invoke the LLM with the refined prompt
     response = llm.invoke(prompt)
     
     # Log the response for debugging
     print(f"Ollama response: {response}")
-    
-    # Check for 'Correct' or 'Incorrect' in the response
-    if "Correct" in response:
-        return 'Correct'
-    elif "Incorrect" in response:
-        return 'Incorrect'
+    response_lines = response.strip().splitlines()
+
+    for i, line in enumerate(response_lines):
+        print(f"Response line {i+1}: {line}")
+
+    # Check if the response contains "Correct" or "Incorrect" (ignoring extra formatting)
+    if response_lines and any("Correct" in line for line in response_lines[0].split()):
+        print("Detected 'Correct'. No feedback necessary.")
+        return {"grade": "Correct", "feedback": None}
+    elif response_lines and any("Incorrect" in line for line in response_lines[0].split()):
+        print("Detected 'Incorrect'. Extracting feedback if available.")
+        
+        # Check if there is feedback in the second line
+        feedback = " ".join(line for line in response_lines[1:] if line).strip()
+        
+        # Log the feedback captured
+        print(f"Captured feedback: {feedback}")
+        
+        return {"grade": "Incorrect", "feedback": feedback}
     else:
-        # Fallback in case the response is unclear
-        return 'Incorrect'
+        # Log unexpected response format and return fallback feedback
+        print("Unexpected response format encountered. Returning fallback feedback.")
+        
+        return {"grade": "Incorrect", "feedback": "An error occurred in evaluation. Please review your answer."}
 
 
-# API to grade the student's answers
 @app.route('/grade-test/<test_id>/<student_id>', methods=['POST'])
 def grade_test(test_id, student_id):
     try:
@@ -387,18 +403,18 @@ def grade_test(test_id, student_id):
         total_possible_score = len(questions)  # Each question is worth 1 point
         student_score = 0
 
-        # Grade each answer using Ollama
+        # Grade each answer using the LLM
         graded_answers = []
 
         for question_data, submitted_answer in zip(questions, submitted_answers):
             student_answer = submitted_answer['submittedAnswer']
             question = question_data['questionText']  # Fetch the question text
 
-            # Use the Ollama model to compare the answers and evaluate
+            # Use the LLM to compare the answers and evaluate, including feedback
             result = compare_answers(student_answer, question, schema)
 
             # Determine the score based on the result
-            if result == 'Correct':
+            if result['grade'] == "Correct":
                 score = 1  # Full mark
                 student_score += 1  # Increment student's score for correct answers
             else:
@@ -408,14 +424,15 @@ def grade_test(test_id, student_id):
                 'questionId': question_data['_id'],
                 'questionText': question_data['questionText'],
                 'submittedAnswer': student_answer,
-                'result': result,
+                'result': result['grade'],
+                'feedback': result['feedback'],  # Add feedback here
                 'score': score
             })
 
         # Store the student's total score in the performance
         total_score = student_score
 
-        # Update the student's performance with the graded answers and total score
+        # Update the student's performance with the graded answers, total score, and feedback
         students_collection.update_one(
             {'_id': student_id, 'performance.testId': test_id},
             {'$set': {
@@ -434,6 +451,9 @@ def grade_test(test_id, student_id):
     except Exception as e:
         print(f"Error grading test: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+
 @app.route('/graded-tests/<student_id>', methods=['GET'])
 def get_graded_tests(student_id):
     try:
@@ -488,6 +508,164 @@ def view_test_details(test_id, student_id):
     except Exception as e:
         print(f"Error fetching test details: {e}")
         return jsonify({'error': str(e)}), 500
+    
+from bson import ObjectId
+from flask import jsonify
+
+@app.route('/performance/<student_id>', methods=['GET'])
+def get_student_performance(student_id):
+    try:
+        # Find the student document by their ObjectId
+        student = students_collection.find_one({'_id': ObjectId(student_id)})
+        if not student:
+            return jsonify({'error': 'Student not found'}), 404
+
+        # Fetch the performance data
+        performance = student.get('performance', [])
+
+        # If no performance data is available, return an empty summary
+        if not performance:
+            return jsonify({
+                'totalTests': 0,
+                'averageScore': None,
+                'bestScore': None,
+                'worstScore': None,
+                'recentTests': []
+            }), 200
+
+        # Calculate summary details for valid scores
+        valid_scores = [
+            (perf['totalScore'] / perf['totalPossibleScore']) * 100
+            for perf in performance
+            if 'totalScore' in perf and 'totalPossibleScore' in perf
+        ]
+
+        # Handle the case where there are no valid scores
+        if not valid_scores:
+            return jsonify({
+                'totalTests': len(performance),
+                'averageScore': None,
+                'bestScore': None,
+                'worstScore': None,
+                'recentTests': []
+            }), 200
+
+        total_tests = len(performance)
+        average_score = sum(valid_scores) / len(valid_scores)
+        best_score = max(valid_scores)
+        worst_score = min(valid_scores)
+
+        # Get recent tests (last 5 or fewer tests)
+        recent_tests = sorted(performance, key=lambda x: x.get('testName', ''), reverse=True)[:5]
+        recent_test_data = [
+            {
+                'testName': test.get('testName', 'Unnamed Test'),
+                'totalScore': test.get('totalScore'),
+                'totalPossibleScore': test.get('totalPossibleScore'),
+                'scorePercentage': (test['totalScore'] / test['totalPossibleScore']) * 100 if 'totalScore' in test and 'totalPossibleScore' in test else None,
+            } for test in recent_tests
+        ]
+
+        # Compile the final response
+        performance_summary = {
+            'totalTests': total_tests,
+            'averageScore': average_score,
+            'bestScore': best_score,
+            'worstScore': worst_score,
+            'recentTests': recent_test_data
+        }
+
+        return jsonify(performance_summary), 200
+
+    except Exception as e:
+        print(f"Error fetching performance data: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/generate_flashcard', methods=['POST'])
+def generate_flashcard():
+    data = request.json
+    topic = data.get('topic', '')
+    question_type = data.get('question_type', 'scenario')  
+
+    # Validate input
+    if not topic:
+        return jsonify({"error": "Please provide a topic"}), 400
+
+    # Variability phrases to encourage diverse responses
+    variation_phrases = [
+        "Explain with a new perspective.",
+        "Provide a unique example this time.",
+        "Describe this concept with additional details.",
+        "Create a different type of flashcard on this topic.",
+        "Generate this in a fresh way."
+    ]
+    # Randomly choose a variation phrase
+    chosen_variation = random.choice(variation_phrases)
+
+    # Generate prompt based on question type
+    if question_type == 'scenario':
+        prompt = (
+            f"Generate a real-world scenario flashcard based on the topic '{topic}' in SQL. {chosen_variation} "
+            "Create a practical situation that requires applying SQL skills to solve a problem. "
+            "Format response as follows:\n"
+            "Question: Describe a scenario in which [topic-related task or issue] needs to be addressed using SQL.Just the question and nothing else "
+            "How would you solve it?\n"
+            "Answer: [Just give the main pointers as it is a flashcard,no more than 120 words]\n"
+            "Just add the question and answer to the response and no other line not even the Here is a flashcard on topic in SQL:"
+        )
+    elif question_type == 'theory':
+        prompt = (
+            f"Generate a theory-based flashcard on the topic '{topic}' in SQL. {chosen_variation} "
+            "Provide a concise explanation of the topic. "
+            "Format response as follows:\n"
+            "Question: [Any Theory-based question about the topic, Just the question and nothing else]\n"
+            "Answer: [Provide a brief and clear explanation, no more than 120 words]\n"
+            "Just add the question and answer to the response and no other line not even the Here is a flashcard on topic in SQL:"
+        )
+    elif question_type == 'coding':
+        prompt = (
+            f"Generate a coding-based flashcard with an example on the topic '{topic}' in SQL. {chosen_variation} "
+            "Include a practical coding example. "
+            "Format response as follows:\n"
+            "Question: Write a SQL query to [topic-related task].\n"
+            "Answer: [Provide the SQL query and a brief explanation, no more than 100 words]\n"
+            "Just add the question and answer to the response and no other line not even the Here is a flashcard on topic in SQL:"
+        )
+    else:
+        return jsonify({"error": "Invalid question type"}), 400
+
+    # Debugging: Print the prompt for inspection
+    try:
+        print("Prompt sent to Ollama model:", prompt)
+        response = llm.invoke(prompt)
+        print("Response from Ollama model:", response)
+
+        # Handle the response
+        if isinstance(response, str):
+            flashcard = response
+        else:
+            flashcard = response.content
+
+        # Extract question and answer from the flashcard response
+        try:
+            question, answer = flashcard.split("Answer:", 1)
+            question = question.replace("Question:", "").strip()
+            answer = answer.strip()
+            print("Parsed Question:", question)
+            print("Parsed Answer:", answer)
+        except ValueError:
+            print("Unexpected format in LLM response")
+            return jsonify({"error": "Unexpected format in LLM response"}), 500
+
+        return jsonify({
+            "question": question,
+            "answer": answer
+        }), 200
+    except Exception as e:
+        print(f"Error generating flashcard: {e}")
+        return jsonify({"error": f"Failed to generate flashcard: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     # Run the Flask app locally

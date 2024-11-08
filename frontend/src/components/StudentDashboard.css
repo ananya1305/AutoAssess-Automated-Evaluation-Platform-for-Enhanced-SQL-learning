@@ -216,3 +216,25 @@
     width: 100%;
   }
 }
+.doughnut-chart-container {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 1rem;
+  gap: 1rem;
+  max-height: 220px; /* Set max height to contain charts */
+}
+
+.doughnut-chart-item {
+  min-width: 110px;
+  max-width: 140px;
+  height: 200px; /* Fix height to contain the chart */
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.doughnut-label {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  white-space: nowrap;
+}

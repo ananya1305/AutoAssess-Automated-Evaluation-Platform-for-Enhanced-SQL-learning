@@ -109,6 +109,9 @@ const TakeTest = () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
             });
             
+            // Call grading function (this happens in the background, without blocking the UI)
+            handleGradeTest();
+
             // Redirect to 'Test Submitted' page immediately
             navigate(`/test-submitted`);
         } catch (error) {
@@ -116,6 +119,17 @@ const TakeTest = () => {
             alert('Failed to submit the test.');
         } finally {
             setLoading(false);
+        }
+    };
+    const handleGradeTest = async () => {
+        try {
+            // Perform grading in the background
+            await axios.post(`http://localhost:5000/grade-test/${testId}/${student._id}`, {}, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
+            });
+            console.log('Test graded successfully!');
+        } catch (error) {
+            console.error('Error grading test:', error);
         }
     };
 
@@ -158,10 +172,10 @@ const TakeTest = () => {
                 <h3>Key Information</h3>
                 {test.keyInfo ? (
                     <ul>
-                        <li><strong>Candidate Key:</strong> {test.keyInfo["Candidate Key"]}</li>
+                        
                         <li><strong>Primary Key:</strong> {test.keyInfo["Primary Key"]}</li>
                         <li><strong>Foreign Key:</strong> {test.keyInfo["Foreign Key"]}</li>
-                        <li><strong>Composite Key:</strong> {test.keyInfo["Composite Key"]}</li>
+                       
                     </ul>
                 ) : (
                     <p>No key information available</p>

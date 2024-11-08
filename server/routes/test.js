@@ -45,9 +45,10 @@ router.post('/createTest', async (req, res) => {
     const questionIds = [];
 
     for (let question of questions) {
+      const sanitizedQuestionText = question.questionText.replace(/^\d+\.\s*/, '');
       const newQuestion = new Question({
         testId: savedTest._id,
-        questionText: question.questionText,
+        questionText: sanitizedQuestionText, 
         marks: question.marks,
         questionNumber: question.questionNumber, // Ensure questionNumber is being passed
         answer: question.answer, // If using an answer field
@@ -137,12 +138,13 @@ router.get('/:id', async (req, res) => {
 // Submit test answers by student
 // Submit test answers by student
 // Submit test answers by student
+// Submit test answers by student
 router.post('/:id/submit', async (req, res) => {
   const { answers, studentId } = req.body;  // Ensure studentId and answers are coming from the request body
   const testId = req.params.id;
 
   try {
-    // Your test submission logic here
+    // Find the test by ID
     const test = await Test.findById(testId);
     if (!test) {
       return res.status(404).json({ error: 'Test not found' });
@@ -154,18 +156,20 @@ router.post('/:id/submit', async (req, res) => {
       return res.status(404).json({ error: 'Student not found' });
     }
 
-    // Save the student's answers and update their performance
+    // Map submitted answers to match the test questions
     const submittedAnswers = test.questions.map((question, index) => ({
       questionId: question._id,
       questionText: question.questionText,
       submittedAnswer: answers[index],
     }));
 
+    // Add test details, including the date of the test
     student.performance.push({
       testId: test._id,
       testName: test.testName,
       submittedAnswers,
-      duration: test.duration
+      duration: test.duration,
+      dateTaken: test.date // Adding the date of the test to performance data
     });
 
     await student.save();
@@ -176,5 +180,6 @@ router.post('/:id/submit', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 module.exports = router;

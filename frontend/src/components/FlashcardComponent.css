@@ -89,8 +89,8 @@
 }
 
 .flashcard-box {
-    width: 300px;
-    height: 200px;
+    width: 550px; /* Increased width */
+    height: 350px; /* Increased height */
     margin: 0 auto;
     position: relative;
     transform-style: preserve-3d;
@@ -114,8 +114,11 @@
     border-radius: 8px;
     background-color: #f9f9f9;
     padding: 20px;
+    box-sizing: border-box;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     font-size: 18px;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 .flashcard-back {
@@ -124,15 +127,27 @@
     color: white;
 }
 
-.flashcard-topic-select {
-    border-radius: 10px;
-    padding: 30px;
-    background-color:rgb(161, 212, 246);
-    margin-bottom: 20px;
+.flashcard-front h3, .flashcard-back h3 {
+    font-size: 16px;
+    text-align: center;
+    margin: 0;
+    word-wrap: break-word;
 }
 
+/* Dropdown styling for topic and question type */
+.flashcard-topic-select, .flashcard-question-type-select {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    padding: 30px;
+    background-color: rgb(161, 212, 246);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Next button styling */
 .flashcard-next-button {
-    margin-top: 60px; /* Add space above the button */
+    margin-top: 40px;
     padding: 10px 20px;
     background-color: #007bff;
     color: white;

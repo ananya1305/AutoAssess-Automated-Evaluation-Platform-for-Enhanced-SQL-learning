@@ -17,6 +17,7 @@ import Score from './components/Score';
 import TestResult from './components/ResultPage'
 import SingleDatasetTestPage from './components/SingleDatasetTestPage'; // New component for single dataset
 import MultipleDatasetsTestPage from './components/MultipleDatasetsTestPage'; // New component for multiple datasets
+import Performance from './components/PerformancePage'
 
 function App() {
  
@@ -39,6 +40,7 @@ function App() {
       <Route path="/test-submitted" element={<TestSubmitted />} />
       <Route path="/score" element={<Score />} />
       <Route path="/test-result/:testId/:studentId"  element={<TestResult />} />
+      <Route path="/performance" element={<Performance />} />
 
     </Routes>
   );

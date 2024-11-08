@@ -3,7 +3,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Chart from 'chart.js/auto'; // Import Chart.js
 import './StudentDashboard.css';
+import { Doughnut } from 'react-chartjs-2'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import profilePic from './profile.jpg';
+
 import { faTachometerAlt, faTasks, faCog, faSignOutAlt, faUsers, faList, faClipboardList, faBookOpen, faChartBar, faMedal, faClipboard } from '@fortawesome/free-solid-svg-icons';
 
 const StudentDashboard = () => {
@@ -82,7 +85,7 @@ const StudentDashboard = () => {
                     <FontAwesomeIcon icon={faSignOutAlt} className="student-header-icon" onClick={() => handleLogout()} />
                         <div className="student-profile-dropdown">
                             <img
-                                src="https://vectorified.com/images/profile-picture-icon-27.png"
+                                src={profilePic}
                                 alt="Profile"
                                 className="student-profile-pic"
                                 onClick={toggleDropdown}
@@ -100,30 +103,6 @@ const StudentDashboard = () => {
         );
     };
 
-    useEffect(() => {
-        if (pieChartRef.current) {
-            pieChartRef.current.destroy();
-        }
-
-        if (user.performance && user.performance.length > 0) {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            pieChartRef.current = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: user.performance.map(perf => perf.testName),
-                    datasets: [{
-                        label: 'Scores',
-                        data: user.performance.map(perf => perf.totalScore),
-                        backgroundColor: ['#A0D1FB', '#E4E9F0', '#B9C6DF', '#7BAAF8'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                }
-            });
-        }
-    }, [user]);
 
     const normalizeDate = (date) => {
         return date.toISOString().split('T')[0]; // Get the YYYY-MM-DD part
@@ -150,6 +129,7 @@ const StudentDashboard = () => {
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
     };
+    
 
     // Handle edit profile (navigate to profile editing page)
     const handleEditProfile = () => {
@@ -171,6 +151,32 @@ const StudentDashboard = () => {
     const handleScoresClick = () => {
         navigate('/score');  // Navigate to the Scores page
     };
+    const handlesPerformance = () => {
+        navigate('/performance');  // Navigate to the Scores page
+    };
+    const PerformanceSection = ({ performanceData }) => (
+        <div className="student-performance">
+            <h3>Your Test Performances</h3>
+            <div className="doughnut-chart-container">
+                {performanceData?.map((test, index) => {
+                    const percentageScore = (test.totalScore / test.totalPossibleScore) * 100;
+                    const data = {
+                        labels: ['Score', 'Remaining'],
+                        datasets: [{
+                            data: [percentageScore, 100 - percentageScore],
+                            backgroundColor: ['#7BAAF8', '#E4E9F0'],
+                        }],
+                    };
+                    return (
+                        <div key={index} className="doughnut-chart-item">
+                            <Doughnut data={data} options={{ cutout: '80%', maintainAspectRatio: false }} />
+                            <p className="doughnut-label">{test.testName}</p>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
 
 
     return (
@@ -190,7 +196,7 @@ const StudentDashboard = () => {
                     <a href="#">
                         <FontAwesomeIcon icon={faBookOpen} /> Assignments
                     </a>
-                    <a href="#">
+                    <a href="#" onClick={handlesPerformance}>
                         <FontAwesomeIcon icon={faChartBar} /> Performance
                     </a>
                     <a href="#" onClick={handleScoresClick}>
@@ -212,10 +218,9 @@ const StudentDashboard = () => {
                     <div className="student-content-grid">
                         <div className="student-give-test-btn">Give Test</div>
                         <div className="student-performance">
-                            <h3>Your Performance (Pie Chart)</h3>
-                            <div style={{ position: 'relative', height: '300px', width: '100%' }}>
-                                <canvas id="performanceChart"></canvas>
-                            </div>
+                            
+                            <PerformanceSection performanceData={user.performance} />
+                            
                         </div>
                         <div className="student-leaderboard">
                             <h3>Latest Test Leaderboard</h3>
